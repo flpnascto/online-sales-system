@@ -1,36 +1,33 @@
-import request from 'supertest'
-import { app } from '../src/App';
+import axios from 'axios'
+import { App } from '../src/App';
+
+const PORT_TEST = 3030;
+const BASE_URL = `http://localhost:${PORT_TEST}`;
+const ENDPOINT_ORDERS = `${BASE_URL}/orders`;
+const server = new App();
+server.start(PORT_TEST);
 
 test('Verifica se a aplicação está operando', async () => {
-  const response = await request(app).get('/');
-  expect(response.body).toEqual({ ok: true })
+  const response = await axios.get(BASE_URL);
+  expect(response.data).toEqual({ ok: true })
 } )
 
 test('Deve criar um pedido com 3 produtos (com descrição, preço e quantidade) e calcular o valor total', async () => {
-  const products = [
-    {
-      description: 'Produto 01',
-      price: 10.00,
-      quantity: 1
-    },
-    {
-      description: 'Produto 02',
-      price: 20.00,
-      quantity: 2
-    },
-    {
-      description: 'Produto 03',
-      price: 30.00,
-      quantity: 3
-    }
-  ];
-  const totalPrice = 140.00
-  const newOrder = {
-    id: 1,
-    totalPrice,
-    products
+  const input = {
+    cpf: '987.654.321-00',
+    itens: [
+      { productId: 1, quantity: 1 },
+      { productId: 2, quantity: 2 },
+      { productId: 3, quantity: 3 },
+    ],
   }
-  const response = await request(app).post('/orders').send(products);
-  expect(response.statusCode).toBe(201);
-  expect(response.body).toMatchObject(newOrder)
+  const output = {
+    id: 1,
+    totalPrice: 140,
+  };
+  const response = await axios.post(ENDPOINT_ORDERS, input);
+  console.log(response);
+  
+  expect(response.status).toBe(201);
+  expect(response.data).toMatchObject(output)
 })
