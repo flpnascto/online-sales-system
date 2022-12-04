@@ -1,20 +1,31 @@
-DROP DATABASE IF EXISTS sales_system;
-CREATE DATABASE sales_system;
-
 DROP TABLE IF EXISTS sales_system.products;
+DROP TABLE IF EXISTS sales_system.orders;
+DROP TABLE IF EXISTS sales_system.coupons;
+DROP SCHEMA IF EXISTS sales_system;
+
+CREATE SCHEMA sales_system;
+
 CREATE TABLE sales_system.products(
-	id INTEGER AUTOINCREMENT,
+	id SERIAL PRIMARY KEY,
 	description TEXT,
 	price NUMERIC
-  PRIMARY KEY (id)
 );
 
 INSERT INTO sales_system.products (id, description, price) VALUES
 (1, 'PRODUTO A', 10),
-(2, 'PRODUTO A', 20),
-(3, 'PRODUTO A', 30);
+(2, 'PRODUTO B', 20),
+(3, 'PRODUTO C', 30);
 
 CREATE TABLE sales_system.orders(
 	id SERIAL PRIMARY KEY,
 	total_price NUMERIC
 );
+
+CREATE TABLE sales_system.coupons(
+	id SERIAL PRIMARY KEY,
+	description TEXT,
+	percentage NUMERIC
+);
+
+INSERT INTO sales_system.coupons (id, description, percentage) VALUES
+(1, 'COUPON10', 10);

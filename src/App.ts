@@ -31,7 +31,7 @@ class App {
       // const orderProducts = req.body as IOrderProduct[];
       let totalPrice = 0;
       for (const item of req.body.itens) {
-        const [product] = await db.query<IProduct[]>("SELECT * FROM sales_system.products where id = $1", [item.productId]);
+        const [product] = await db.query<IProduct[]>('SELECT * FROM sales_system.products where id = $1', [item.productId]);
         if (product) {
           totalPrice += product.price * item.quantity;
         } else {
@@ -40,15 +40,16 @@ class App {
           });
         }
       };
-
+      if (req.body.coupons){
+        const [coupon] = await db.query('SELECT * FROM sales_system.coupons WHERE description = $1', [req.body.coupons])
+        if (coupon) {
+          totalPrice -= (totalPrice * coupon.percentage) / 100;
+        }
+      }
       const { id } = await db.one('INSERT INTO sales_system.orders(total_price) VALUES($1) RETURNING id', [totalPrice])
-
-      const newOrder = { id: 1, totalPrice }
-      return res.status(201).json(newOrder)
+      return res.status(201).json({ id, totalPrice })
     });
-
   }
-
 
   private config():void {
     const accessControl: express.RequestHandler = (_req, res, next) => {
