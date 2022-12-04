@@ -58,3 +58,16 @@ test('Ao criar um pedido com CPF inválido deve retornar mensagem de erro', asyn
   expect(response.status).toBe(422);
   expect(response.data).toMatchObject({ message: 'Invalid CPF'})
 })
+
+test("Não deve fazer pedido com produto que não existe", async function () {
+	const input = {
+		cpf: "987.654.321-00",
+		itens: [
+			{ idProduct: 5, quantity: 1 }
+		]
+	};
+	const response = await axios.post(ENDPOINT_ORDERS, input)
+	expect(response.status).toBe(422);
+	const output = response.data;
+	expect(output.message).toBe("Product not found");
+});
