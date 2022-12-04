@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import pgp from "pg-promise";
+import validateCPF from './utils/validateCPF'
 
 const db = pgp()("postgres://postgres:postgres@localhost:3002");
 
@@ -29,6 +30,9 @@ class App {
     this.app.get('/', (_req: Request, res: Response) => res.json({ ok: true }));
     this.app.post('/orders', async (req: Request, res: Response) => {
       // const orderProducts = req.body as IOrderProduct[];
+      if (! req.body.cpf || !validateCPF(req.body.cpf)) {
+        return res.status(422).json({ message: 'Invalid CPF'})
+      }
       let totalPrice = 0;
       for (const item of req.body.itens) {
         const [product] = await db.query<IProduct[]>('SELECT * FROM sales_system.products where id = $1', [item.productId]);
@@ -40,8 +44,8 @@ class App {
           });
         }
       };
-      if (req.body.coupons){
-        const [coupon] = await db.query('SELECT * FROM sales_system.coupons WHERE description = $1', [req.body.coupons])
+      if (req.body.coupon){
+        const [coupon] = await db.query('SELECT * FROM sales_system.coupons WHERE description = $1', [req.body.coupon])
         if (coupon) {
           totalPrice -= (totalPrice * coupon.percentage) / 100;
         }
