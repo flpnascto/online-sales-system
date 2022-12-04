@@ -40,10 +40,10 @@ test('Deve criar um pedido com 3 produtos, com cupom de desconto e calcular o va
       { productId: 2, quantity: 2 },
       { productId: 3, quantity: 3 },
     ],
-    cupom: "CUPOM10",
+    coupon: "COUPON10",
   }
   const output = {
-    id: 1,
+    id: 2,
     totalPrice: 126,
   };
   const response = await axios.post(ENDPOINT_ORDERS, input);
