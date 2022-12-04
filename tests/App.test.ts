@@ -6,6 +6,7 @@ const BASE_URL = `http://localhost:${PORT_TEST}`;
 const ENDPOINT_ORDERS = `${BASE_URL}/orders`;
 const server = new App();
 server.start(PORT_TEST);
+axios.defaults.validateStatus = function () { return true };
 
 test('Verifica se a aplicação está operando', async () => {
   const response = await axios.get(BASE_URL);
@@ -26,8 +27,6 @@ test('Deve criar um pedido com 3 produtos (com descrição, preço e quantidade)
     totalPrice: 140,
   };
   const response = await axios.post(ENDPOINT_ORDERS, input);
-  console.log(response);
-  
   expect(response.status).toBe(201);
   expect(response.data).toMatchObject(output)
 })
@@ -47,8 +46,15 @@ test('Deve criar um pedido com 3 produtos, com cupom de desconto e calcular o va
     totalPrice: 126,
   };
   const response = await axios.post(ENDPOINT_ORDERS, input);
-  console.log(response);
-  
   expect(response.status).toBe(201);
   expect(response.data).toMatchObject(output)
+})
+
+test('Ao criar um pedido com CPF inválido deve retornar mensagem de erro', async () => {
+  const input = {
+    cpf: '987.654.321-10',
+  }
+  const response = await axios.post(ENDPOINT_ORDERS, input);
+  expect(response.status).toBe(422);
+  expect(response.data).toMatchObject({ message: 'Invalid CPF'})
 })
