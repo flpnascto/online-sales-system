@@ -10,10 +10,7 @@ server.start(PORT_TEST);
 axios.defaults.validateStatus = function () { return true };
 
 describe('App', () => {
-  beforeEach(async () => { 
-    await clearDB();
-    console.log('Database reset');
-  });
+  beforeEach(async () => await clearDB());
 
   test('Verifica se a aplicação está operando', async () => {
     const response = await axios.get(BASE_URL);
@@ -78,4 +75,23 @@ describe('App', () => {
     const output = response.data;
     expect(output.message).toBe("Product not found");
   });
+
+  test('Não deve fazer aplicar desconto se o cupom estiver expirado', async () => {
+    const input = {
+      cpf: '987.654.321-00',
+      itens: [
+        { productId: 1, quantity: 1 },
+        { productId: 2, quantity: 2 },
+        { productId: 3, quantity: 3 },
+      ],
+      coupon: "COUPON_EXPIRED",
+    }
+    const output = {
+      id: 1,
+      totalPrice: 126,
+    };
+    const response = await axios.post(ENDPOINT_ORDERS, input);
+    expect(response.status).toBe(201);
+    expect(response.data).toMatchObject(output)
+  })
 })
