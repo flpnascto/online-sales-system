@@ -46,7 +46,7 @@ class App {
       };
       if (req.body.coupon){
         const [coupon] = await db.query('SELECT * FROM sales_system.coupons WHERE description = $1', [req.body.coupon])
-        if (coupon) {
+        if (coupon &&  coupon.expire_date.getTime() > (new Date()).getTime()) {
           totalPrice -= (totalPrice * coupon.percentage) / 100;
         }
       }
