@@ -15,9 +15,9 @@ interface IOrderProduct {
   quantity: number;
 }
 interface IOrder {
-  id: number;
-  products: IOrderProduct[];
-  totalPrice:number;
+  cpf: string;
+  itens: IOrderProduct[];
+  coupon:string;
 }
 class App {
   public app: express.Express;
@@ -29,14 +29,20 @@ class App {
 
     this.app.get('/', (_req: Request, res: Response) => res.json({ ok: true }));
     this.app.post('/orders', async (req: Request, res: Response) => {
-      // const orderProducts = req.body as IOrderProduct[];
-      if (! req.body.cpf || !validateCPF(req.body.cpf)) {
+      const orderProducts = req.body as IOrder;
+      if (! orderProducts.cpf || !validateCPF(orderProducts.cpf)) {
         return res.status(422).json({ message: 'Invalid CPF'})
       }
       let totalPrice = 0;
-      for (const item of req.body.itens) {
+      const productsIds: number[] = [];
+      for (const item of orderProducts.itens) {
         if (item.quantity <= 0) {
           return res.status(422).json({ message: 'Product quantity must be positive number' });
+        }
+        if (productsIds.some((id) => id === item.productId)) {
+          return res.status(422).json({ message: 'Duplicated product' });
+        } else {
+          productsIds.push(item.productId);
         }
         const [product] = await db.query<IProduct[]>('SELECT * FROM sales_system.products where id = $1', [item.productId]);
         if (product) {
