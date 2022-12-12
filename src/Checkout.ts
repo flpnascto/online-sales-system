@@ -1,3 +1,4 @@
+import CouponData from "./CouponData";
 import validateCPF from "./utils/validateCPF";
 
 interface IProduct {
@@ -23,7 +24,7 @@ interface IOrder {
 
 export default class Checkout {
   
-  constructor(readonly db: any) {}
+  constructor(readonly db: any, readonly coupon: CouponData) {}
 
   async execute(input: IOrder) {
       if (! input.cpf || !validateCPF(input.cpf)) {
@@ -55,7 +56,7 @@ export default class Checkout {
         };
       };
       if (input.coupon){
-        const [coupon] = await this.db.query('SELECT * FROM sales_system.coupons WHERE description = $1', [input.coupon])
+        const coupon = await this.coupon.getCoupon(input.coupon)
         if (coupon &&  coupon.expire_date.getTime() > (new Date()).getTime()) {
           totalPrice -= (totalPrice * coupon.percentage) / 100;
         }

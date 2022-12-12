@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import pgp from "pg-promise";
 import Checkout from './Checkout';
+import CouponDataDatabase from './CouponDataDatabase';
 
 export const db = pgp()('postgres://postgres:postgres@localhost:3002');
 
@@ -14,8 +15,9 @@ class App {
 
     this.app.get('/', (_req: Request, res: Response) => res.json({ ok: true }));
     this.app.post('/orders', async (req: Request, res: Response) => {
-      const checkout = new Checkout(db);
       try {
+        const couponData = new CouponDataDatabase();
+        const checkout = new Checkout(db, couponData);
         const output = await checkout.execute(req.body)
         return res.status(201).json(output);
       } catch (error: any) {
