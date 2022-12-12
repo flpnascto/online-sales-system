@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import pgp from "pg-promise";
 import validateCPF from './utils/validateCPF'
 
-const db = pgp()("postgres://postgres:postgres@localhost:3002");
+export const db = pgp()("postgres://postgres:postgres@localhost:3002");
 
 interface IProduct {
   id: number;
@@ -35,6 +35,9 @@ class App {
       }
       let totalPrice = 0;
       for (const item of req.body.itens) {
+        if (item.quantity <= 0) {
+          return res.status(422).json({ message: 'Product quantity must be positive number' });
+        }
         const [product] = await db.query<IProduct[]>('SELECT * FROM sales_system.products where id = $1', [item.productId]);
         if (product) {
           totalPrice += product.price * item.quantity;
