@@ -109,4 +109,19 @@ describe('App', () => {
     const output = response.data;
     expect(output.message).toBe("Product quantity must be positive number");
   })
+
+  test('Não deve criar uma ordem com um produto duplicado', async () => {
+    const input = {
+      cpf: '987.654.321-00',
+      itens: [
+        { productId: 1, quantity: 1 },
+        { productId: 1, quantity: 2 },
+      ],
+      coupon: "COUPON10",
+    }
+    const response = await axios.post(ENDPOINT_ORDERS, input)
+    expect(response.status).toBe(422);
+    const output = response.data;
+    expect(output.message).toBe("Duplicated product");
+  })
 })
