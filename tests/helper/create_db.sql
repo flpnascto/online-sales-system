@@ -24,8 +24,10 @@ CREATE TABLE sales_system.orders(
 CREATE TABLE sales_system.coupons(
 	id SERIAL PRIMARY KEY,
 	description TEXT,
-	percentage NUMERIC
+	percentage NUMERIC,
+	expire_date TIMESTAMP
 );
 
-INSERT INTO sales_system.coupons (id, description, percentage) VALUES
-(1, 'COUPON10', 10);
+INSERT INTO sales_system.coupons (id, description, percentage, expire_date) VALUES
+(1, 'COUPON10', 10, '2022-12-20 00:00:00'),
+(2, 'COUPON_EXPIRED', 14, '2021-01-01 00:00:00');

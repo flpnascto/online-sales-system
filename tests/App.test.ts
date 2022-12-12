@@ -76,7 +76,7 @@ describe('App', () => {
     expect(output.message).toBe("Product not found");
   });
 
-  test('Não deve fazer aplicar desconto se o cupom estiver expirado', async () => {
+  test('Não deve aplicar desconto se o cupom estiver expirado', async () => {
     const input = {
       cpf: '987.654.321-00',
       itens: [
@@ -88,10 +88,25 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 126,
+      totalPrice: 140,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
     expect(response.data).toMatchObject(output)
+  })
+
+  test('Não deve criar uma ordem com um produto com quantidade menor do que zero', async () => {
+    const input = {
+      cpf: '987.654.321-00',
+      itens: [
+        { productId: 1, quantity: -1 },
+
+      ],
+      coupon: "COUPON10",
+    }
+    const response = await axios.post(ENDPOINT_ORDERS, input)
+    expect(response.status).toBe(422);
+    const output = response.data;
+    expect(output.message).toBe("Product quantity must be positive number");
   })
 })
