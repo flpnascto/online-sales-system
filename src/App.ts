@@ -56,7 +56,7 @@ class App {
           const volume = (product.height/100) * (product.width/100) * (product.length/100);
           const density = product.weight/volume;
           const itemFreight = distance * volume * density/100;
-          freight += itemFreight;
+          freight += (itemFreight >= 10) ? itemFreight : 10;
           totalPrice += product.price * item.quantity;
         } else {
           return res.status(422).json({
