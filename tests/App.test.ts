@@ -28,7 +28,7 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 579,
+      totalPrice: 580,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
@@ -47,7 +47,7 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 565,
+      totalPrice: 566,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
@@ -88,7 +88,7 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 579,
+      totalPrice: 580,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
@@ -136,7 +136,22 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 579,
+      totalPrice: 580,
+    };
+    const response = await axios.post(ENDPOINT_ORDERS, input);
+    expect(response.status).toBe(201);
+    expect(response.data).toMatchObject(output)
+  })
+  test('Deve calcular o valor do frete com valor mínimo de 10', async () => {
+    const input = {
+      cpf: '987.654.321-00',
+      itens: [
+        { productId: 1, quantity: 1 },
+      ],
+    }
+    const output = {
+      id: 1,
+      totalPrice: 20,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
