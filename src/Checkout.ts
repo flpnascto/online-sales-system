@@ -1,15 +1,6 @@
 import CouponData from "./CouponData";
+import ProductData from "./ProductData";
 import validateCPF from "./utils/validateCPF";
-
-interface IProduct {
-  id: number;
-  description: string;
-  price: number;
-  height: number;
-  width: number;
-  length: number;
-  weight: number;
-}
 
 interface IOrderProduct {
   productId: number;
@@ -24,7 +15,7 @@ interface IOrder {
 
 export default class Checkout {
   
-  constructor(readonly db: any, readonly coupon: CouponData) {}
+  constructor(readonly db: any, readonly product: ProductData, readonly coupon: CouponData) {}
 
   async execute(input: IOrder) {
       if (! input.cpf || !validateCPF(input.cpf)) {
@@ -42,7 +33,7 @@ export default class Checkout {
         } else {
           productsIds.push(item.productId);
         }
-        const [product] = await this.db.query('SELECT * FROM sales_system.products where id = $1', [item.productId]);
+        const product = await this.product.getProduct(item.productId);
         if (product) {
           // Valor do Frete = distância (km) * volume (m3) * (densidade/100)
           const distance = 1000;
