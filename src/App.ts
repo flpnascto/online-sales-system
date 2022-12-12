@@ -8,6 +8,10 @@ interface IProduct {
   id: number;
   description: string;
   price: number;
+  height: number;
+  width: number;
+  length: number;
+  weight: number;
 }
 
 interface IOrderProduct {
@@ -35,6 +39,7 @@ class App {
       }
       let totalPrice = 0;
       const productsIds: number[] = [];
+      let freight = 0
       for (const item of orderProducts.itens) {
         if (item.quantity <= 0) {
           return res.status(422).json({ message: 'Product quantity must be positive number' });
@@ -46,6 +51,12 @@ class App {
         }
         const [product] = await db.query<IProduct[]>('SELECT * FROM sales_system.products where id = $1', [item.productId]);
         if (product) {
+          // Valor do Frete = distância (km) * volume (m3) * (densidade/100)
+          const distance = 1000;
+          const volume = (product.height/100) * (product.width/100) * (product.length/100);
+          const density = product.weight/volume;
+          const itemFreight = distance * volume * density/100;
+          freight += itemFreight;
           totalPrice += product.price * item.quantity;
         } else {
           return res.status(422).json({
@@ -59,6 +70,7 @@ class App {
           totalPrice -= (totalPrice * coupon.percentage) / 100;
         }
       }
+      totalPrice += freight;
       const { id } = await db.one('INSERT INTO sales_system.orders(total_price) VALUES($1) RETURNING id', [totalPrice])
       return res.status(201).json({ id, totalPrice })
     });
