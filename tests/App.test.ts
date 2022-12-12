@@ -28,7 +28,7 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 140,
+      totalPrice: 579,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
@@ -47,7 +47,7 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 126,
+      totalPrice: 565,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
@@ -88,7 +88,7 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 140,
+      totalPrice: 579,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
@@ -123,5 +123,23 @@ describe('App', () => {
     expect(response.status).toBe(422);
     const output = response.data;
     expect(output.message).toBe("Duplicated product");
+  })
+
+  test('Deve calcular o valor do frete com base nas dimensões', async () => {
+    const input = {
+      cpf: '987.654.321-00',
+      itens: [
+        { productId: 1, quantity: 1 },
+        { productId: 2, quantity: 2 },
+        { productId: 3, quantity: 3 },
+      ],
+    }
+    const output = {
+      id: 1,
+      totalPrice: 579,
+    };
+    const response = await axios.post(ENDPOINT_ORDERS, input);
+    expect(response.status).toBe(201);
+    expect(response.data).toMatchObject(output)
   })
 })
