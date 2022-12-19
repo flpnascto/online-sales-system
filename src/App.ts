@@ -1,10 +1,7 @@
 import express, { Request, Response } from 'express';
-import pgp from "pg-promise";
 import Checkout from './Checkout';
 import CouponDataDatabase from './CouponDataDatabase';
 import ProductDataDatabase from './ProductDataDatabase';
-
-export const db = pgp()('postgres://postgres:postgres@localhost:3002');
 
 class App {
   public app: express.Express;
@@ -19,7 +16,7 @@ class App {
       try {
         const productData = new ProductDataDatabase();
         const couponData = new CouponDataDatabase();
-        const checkout = new Checkout(db, productData, couponData);
+        const checkout = new Checkout(productData, couponData);
         const output = await checkout.execute(req.body)
         return res.status(201).json(output);
       } catch (error: any) {
@@ -28,7 +25,7 @@ class App {
     });
   }
 
-  private config():void {
+  private config(): void {
     const accessControl: express.RequestHandler = (_req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS,PUT,PATCH');
@@ -40,7 +37,7 @@ class App {
     this.app.use(accessControl);
   }
 
-  public start(PORT: string | number):void {
+  public start(PORT: string | number): void {
     this.app.listen(PORT, () => console.log(`Running on port ${PORT}`));
   }
 }
