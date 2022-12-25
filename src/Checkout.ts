@@ -2,6 +2,8 @@ import pgp from "pg-promise";
 import CouponData from "./CouponData";
 import ProductData from "./ProductData";
 import validateCPF from "./utils/validateCPF";
+import Mailer from "./Mailer";
+import MailerConsole from "./MailerConsole";
 
 interface IOrderProduct {
   productId: number;
@@ -12,12 +14,17 @@ interface IOrder {
   cpf: string;
   itens: IOrderProduct[];
   coupon?: string;
+  email: string;
 }
 
 export default class Checkout {
   readonly db = pgp()('postgres://postgres:postgres@localhost:3002');
 
-  constructor(readonly product: ProductData, readonly coupon: CouponData) { }
+  constructor(
+    readonly product: ProductData,
+    readonly coupon: CouponData,
+    readonly mailer: Mailer = new MailerConsole()
+  ) { }
 
   async execute(input: IOrder) {
     if (!validateCPF(input.cpf)) {
@@ -56,6 +63,9 @@ export default class Checkout {
     }
     totalPrice += freight;
     const { id } = await this.db.one('INSERT INTO sales_system.orders(total_price) VALUES($1) RETURNING id', [totalPrice])
+    if (input.email) {
+      this.mailer.send(input.email, 'Checkout Success', `Total price: ${totalPrice}`);
+    }
     return { id, totalPrice }
   }
 }
