@@ -15,7 +15,7 @@ describe('App', () => {
   test('Verifica se a aplicação está operando', async () => {
     const response = await axios.get(BASE_URL);
     expect(response.data).toEqual({ ok: true })
-  } )
+  })
 
   test('Deve criar um pedido com 3 produtos (com descrição, preço e quantidade) e calcular o valor total', async () => {
     const input = {
@@ -47,7 +47,7 @@ describe('App', () => {
     }
     const output = {
       id: 1,
-      totalPrice: 566,
+      totalPrice: 580,
     };
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(201);
@@ -60,7 +60,7 @@ describe('App', () => {
     }
     const response = await axios.post(ENDPOINT_ORDERS, input);
     expect(response.status).toBe(422);
-    expect(response.data).toMatchObject({ message: 'Invalid CPF'})
+    expect(response.data).toMatchObject({ message: 'Invalid CPF' })
   })
 
   test("Não deve fazer pedido com produto que não existe", async function () {
