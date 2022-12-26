@@ -117,3 +117,38 @@ test("Deve fazer um pedido com 4 produtos com moedas diferentes com mock", async
   currencyGatewayMock.verify();
   currencyGatewayMock.restore();
 });
+
+test("Deve fazer um pedido com 4 produtos com moedas diferentes com fake", async function () {
+  const input = {
+    cpf: '987.654.321-00',
+    itens: [
+      { productId: 1, quantity: 1 },
+      { productId: 2, quantity: 2 },
+      { productId: 3, quantity: 3 },
+      { productId: 4, quantity: 1 },
+    ],
+    email: 'test@example.com'
+  };
+
+  const currencyGateway: CurrencyGateway = {
+    async getCurrencies(): Promise<any> {
+      return {
+        "USD": 2,
+        "BRL": 1
+      }
+    }
+  }
+  const log: { to: string, subject: string, message: string }[] = [];
+  const mailer: Mailer = {
+    async send(to: string, subject: string, message: string): Promise<any> {
+      log.push({ to, subject, message });
+    }
+  }
+  const checkout = new Checkout(productData, couponData, mailer, currencyGateway);
+  const output = await checkout.execute(input);
+  expect(output.totalPrice).toBe(810);
+  expect(log).toHaveLength(1);
+  expect(log[0].to).toBe("test@example.com");
+  expect(log[0].subject).toBe('Checkout Success');
+  expect(log[0].message).toBe('Total price: 810');
+});
