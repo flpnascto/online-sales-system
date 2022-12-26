@@ -85,3 +85,35 @@ test("Deve fazer um pedido com 4 produtos com moedas diferentes", async function
   currencyGatewayStub.restore();
   mailerSpy.restore();
 })
+
+test("Deve fazer um pedido com 4 produtos com moedas diferentes com mock", async function () {
+  const currencyGatewayMock = sinon.mock(CurrencyGateway.prototype)
+  currencyGatewayMock.expects("getCurrencies")
+    .once()
+    .resolves({
+      "USD": 2,
+      "BRL": 1
+    });
+  const mailerMock = sinon.mock(MailerConsole.prototype);
+  mailerMock.expects("send")
+    .once()
+    .withArgs('test@example.com', 'Checkout Success', 'Total price: 810');
+  const input = {
+    cpf: '987.654.321-00',
+    itens: [
+      { productId: 1, quantity: 1 },
+      { productId: 2, quantity: 2 },
+      { productId: 3, quantity: 3 },
+      { productId: 4, quantity: 1 },
+
+    ],
+    email: 'test@example.com'
+  };
+  const checkout = new Checkout(productData, couponData);
+  const output = await checkout.execute(input);
+  expect(output.totalPrice).toBe(810);
+  mailerMock.verify();
+  mailerMock.restore();
+  currencyGatewayMock.verify();
+  currencyGatewayMock.restore();
+});
