@@ -14,7 +14,7 @@ interface IOrder {
   cpf: string;
   itens: IOrderProduct[];
   coupon?: string;
-  email: string;
+  email?: string;
 }
 
 export default class Checkout {
