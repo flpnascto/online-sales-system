@@ -4,6 +4,8 @@ import ProductData from "./ProductData";
 import validateCPF from "./utils/validateCPF";
 import Mailer from "./Mailer";
 import MailerConsole from "./MailerConsole";
+import CurrencyGateway from "./CurrencyGateway";
+import CurrencyGatewayRandom from "./CurrencyGatewayRandom";
 
 interface IOrderProduct {
   productId: number;
@@ -23,7 +25,8 @@ export default class Checkout {
   constructor(
     readonly product: ProductData,
     readonly coupon: CouponData,
-    readonly mailer: Mailer = new MailerConsole()
+    readonly mailer: Mailer = new MailerConsole(),
+    readonly currencyGateway: CurrencyGateway = new CurrencyGatewayRandom()
   ) { }
 
   async execute(input: IOrder) {
@@ -32,7 +35,8 @@ export default class Checkout {
     }
     let totalPrice = 0;
     const productsIds: number[] = [];
-    let freight = 0
+    let freight = 0;
+    const currencies: any = await this.currencyGateway.getCurrencies();
     for (const item of input.itens) {
       if (item.quantity <= 0) {
         throw new Error('Product quantity must be positive number');
@@ -50,7 +54,7 @@ export default class Checkout {
         const density = product.weight / volume;
         const itemFreight = distance * volume * density / 100;
         freight += (itemFreight >= 10) ? itemFreight : 10;
-        totalPrice += product.price * item.quantity;
+        totalPrice += product.price * (currencies[product.currency] || 1) * item.quantity;
       } else {
         throw new Error('Product not found')
       };

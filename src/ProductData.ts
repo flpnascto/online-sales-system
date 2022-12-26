@@ -6,6 +6,7 @@ export interface IProduct {
   width: number;
   length: number;
   weight: number;
+  currency: string;
 }
 
 export default interface ProductData {
